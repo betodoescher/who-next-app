@@ -17,6 +17,6 @@ export default {
     })
   },
   locationUser (username) {
-    return axios.get(`${config.serverURI}/locationuser`)
+    return axios.get(`${config.serverURI}/locationuser/${username}`)
   }
 }

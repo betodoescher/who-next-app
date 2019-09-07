@@ -48,6 +48,7 @@
 <script>
 import ChatService from '../../services/ChatService'
 import UserService from '../../services/UserService'
+import io from 'socket.io-client'
 export default {
   name: 'Chat',
   data: function () {
@@ -86,6 +87,16 @@ export default {
     this.$q.loading.show()
     this.getUsuarioProximo()
     this.$q.loading.hide()
+
+    const vm = this
+
+    const socket = io('http://localhost:3333', {
+      query: { user: vm.user._id }
+    })
+
+    socket.on('match', dev => {
+      vm.printMensage(dev)
+    })
   },
   methods: {
     onBack () {
@@ -95,7 +106,6 @@ export default {
       this.$q.loading.show()
 
       const vm = this
-
       ChatService.post({
         _idUserOrigin: this.user._id,
         _idUserDestiny: this.userConnected._id,
@@ -103,24 +113,47 @@ export default {
       })
         .then(function (response) {
           if (response.data) {
-            vm.chatMessages.push({
-              id: response.data._id,
-              name: response.data._idUserOrigin === vm.user._id ? vm.user.name : vm.userConnected.name,
-              avatar: response.data._idUserOrigin === vm.user._id ? vm.user.avatar : vm.userConnected.avatar,
-              text: [response.data.text],
-              sent: response.data._idUserOrigin === vm.user._id,
-              stamp: response.data.createdAt
-            })
+            vm.printMensage(response.data)
           }
         })
 
       this.$q.loading.hide()
     },
+    printMensage (param) {
+      const vm = this
+
+      const mensagemEnviada = {
+        id: param._id,
+        name: param._idUserOrigin === vm.user._id ? vm.user.name : vm.userConnected.name,
+        avatar: param._idUserOrigin === vm.user._id ? vm.user.avatar : vm.userConnected.avatar,
+        text: [param.text],
+        sent: param._idUserOrigin === vm.user._id,
+        stamp: param.createdAt
+      }
+
+      const ultimaMensagem = vm.chatMessages.slice(-1)
+
+      if (ultimaMensagem.length > 0) {
+        if (ultimaMensagem[0].name === mensagemEnviada.name) {
+          for (let key in vm.chatMessages) {
+            if (vm.chatMessages[key] === ultimaMensagem[0]) {
+              vm.chatMessages[key].text.push(param.text)
+            }
+          }
+        } else {
+          vm.chatMessages.push(mensagemEnviada)
+        }
+      } else {
+        vm.chatMessages.push(mensagemEnviada)
+      }
+
+      this.text = null
+    },
     async getUsuarioProximo () {
       const vm = this
 
       // Buscando usuário na "proximidade"
-      await UserService.locationUser()
+      await UserService.locationUser(vm.user.user)
         .then(function (response) {
           if (!response.data) {
             vm.$q.notify({
@@ -133,12 +166,12 @@ export default {
             return false
           }
 
-          vm.$q.notify({
-            color: 'green-4',
-            textColor: 'white',
-            icon: 'fas fa-check-circle',
-            message: 'Usuário encontrado'
-          })
+          // vm.$q.notify({
+          //   color: 'green-4',
+          //   textColor: 'white',
+          //   icon: 'fas fa-check-circle',
+          //   message: 'Usuário encontrado'
+          // })
 
           vm.userConnected = response.data
         })
