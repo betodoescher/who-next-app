@@ -46,7 +46,8 @@
   </div>
 </template>
 <script>
-import axios from 'axios'
+import ChatService from '../../services/ChatService'
+import UserService from '../../services/UserService'
 export default {
   name: 'Chat',
   data: function () {
@@ -95,7 +96,7 @@ export default {
 
       const vm = this
 
-      axios.post('http://localhost:3333/chats', {
+      ChatService.post({
         _idUserOrigin: this.user._id,
         _idUserDestiny: this.userConnected._id,
         text: this.text
@@ -112,9 +113,6 @@ export default {
             })
           }
         })
-        .catch(function (error) {
-          console.log(error)
-        })
 
       this.$q.loading.hide()
     },
@@ -122,7 +120,7 @@ export default {
       const vm = this
 
       // Buscando usuário na "proximidade"
-      await axios.get(`http://localhost:3333/locationuser`)
+      await UserService.get()
         .then(function (response) {
           if (!response.data) {
             vm.$q.notify({

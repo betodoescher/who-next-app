@@ -21,7 +21,6 @@
 
 <script>
 import GoogleMapsApiLoader from 'google-maps-api-loader'
-// import axios from 'axios'
 import UserService from './../services/UserService'
 
 export default {

@@ -24,7 +24,7 @@
   </div>
 </template>
 <script>
-import axios from 'axios'
+import UserService from '../../services/UserService'
 export default {
   data () {
     return {
@@ -36,18 +36,12 @@ export default {
   methods: {
     onSubmit () {
       const vm = this
-      axios.post('http://localhost:3333/users', {
-        username: this.username
+      UserService.post(this.username).then(function (response) {
+        if (response.data) {
+          window.localStorage.setItem('user', JSON.stringify(response.data))
+          vm.$router.push({ path: '/chats' })
+        }
       })
-        .then(function (response) {
-          if (response.data) {
-            window.localStorage.setItem('user', JSON.stringify(response.data))
-            vm.$router.push({ path: '/chats' })
-          }
-        })
-        .catch(function (error) {
-          console.log(error)
-        })
     },
 
     onReset () {

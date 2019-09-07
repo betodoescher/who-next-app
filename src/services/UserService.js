@@ -10,5 +10,13 @@ export default {
       })
 
     return users
+  },
+  post (username) {
+    return axios.post(`${config.serverURI}/users`, {
+      username: username
+    })
+  },
+  locationUser (username) {
+    return axios.get(`${config.serverURI}/locationuser`)
   }
 }
