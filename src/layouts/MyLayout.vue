@@ -27,7 +27,7 @@
       <q-list>
         <q-item-label header>Menu</q-item-label>
 
-        <q-item clickable>
+        <!-- <q-item clickable>
           <q-item-section avatar>
             <q-icon name="my_location" />
           </q-item-section>
@@ -35,7 +35,7 @@
             <q-item-label>Map</q-item-label>
             <q-item-label caption>Show map with neably users</q-item-label>
           </q-item-section>
-        </q-item>
+        </q-item> -->
         <q-item clickable @click.native="$router.push('/chat')">
           <q-item-section avatar>
             <q-icon name="chat" />
@@ -68,6 +68,14 @@
             <q-item-label>Find</q-item-label>
           </q-item-section>
         </q-item>
+         <q-item clickable @click.native="logout" >
+          <q-item-section avatar>
+            <q-icon name="exit_to_app" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Sair</q-item-label>
+          </q-item-section>
+        </q-item>
       </q-list>
 
     </q-drawer>
@@ -89,7 +97,11 @@ export default {
     }
   },
   methods: {
-    openURL
+    openURL,
+    logout () {
+      window.localStorage.removeItem('user')
+      this.$router.push('/login')
+    }
   }
 }
 </script>

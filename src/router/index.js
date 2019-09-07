@@ -20,5 +20,25 @@ export default function (/* { store, ssrContext } */) {
     base: process.env.VUE_ROUTER_BASE
   })
 
+  Router.beforeEach((to, from, next) => {
+    // if (to.matched.some(record => record.meta.requiresAuth)) {
+    // this route requires auth, check if logged in
+    // if not, redirect to login page.
+    if (!window.localStorage.getItem('user')) {
+      if (to.path !== '/login') {
+        next({ name: 'Login' })
+      } else {
+        next()
+      }
+    } else {
+      next()
+    }
+    // } else {
+    //   next() // make sure to always call next()!
+    // }
+  })
+
+  console.log(window.localStorage.getItem('user'))
+
   return Router
 }

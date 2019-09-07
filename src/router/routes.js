@@ -4,7 +4,7 @@ const routes = [
     path: '/',
     component: () => import('layouts/MyLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/Index.vue') },
+      // { path: 'map', component: () => import('pages/Index.vue') },
       { path: 'chat', component: () => import('pages/Chat'), name: 'Chat', meta: { requiresAuth: true } },
       { path: 'login', component: () => import('pages/Login'), name: 'Login', meta: { requiresAuth: true } },
       { path: 'chats', component: () => import('pages/Chats'), name: 'Chats', meta: { requiresAuth: true } }
