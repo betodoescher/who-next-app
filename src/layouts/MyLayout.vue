@@ -36,7 +36,40 @@
             <q-item-label caption>Show map with neably users</q-item-label>
           </q-item-section>
         </q-item>
+        <q-item clickable @click.native="$router.push('/chat')">
+          <q-item-section avatar>
+            <q-icon name="chat" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Chat</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item clickable @click.native="$router.push('/chats')">
+          <q-item-section avatar>
+            <q-icon name="chat" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Chats</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item clickable @click.native="$router.push('/login')">
+          <q-item-section avatar>
+            <q-icon name="person" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Login</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item clickable @click.native="$router.push('/find')">
+          <q-item-section avatar>
+            <q-icon name="search" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Find</q-item-label>
+          </q-item-section>
+        </q-item>
       </q-list>
+
     </q-drawer>
 
     <q-page-container>
