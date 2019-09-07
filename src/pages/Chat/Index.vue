@@ -120,7 +120,7 @@ export default {
       const vm = this
 
       // Buscando usuário na "proximidade"
-      await UserService.get()
+      await UserService.locationUser()
         .then(function (response) {
           if (!response.data) {
             vm.$q.notify({
