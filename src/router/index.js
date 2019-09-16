@@ -38,7 +38,5 @@ export default function (/* { store, ssrContext } */) {
     // }
   })
 
-  console.log(window.localStorage.getItem('user'))
-
   return Router
 }

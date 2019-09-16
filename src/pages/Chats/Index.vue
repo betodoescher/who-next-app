@@ -3,46 +3,14 @@
 
     <q-list bordered separator>
 
-      <q-slide-item @left="onLeft" @right="onRight">
-        <template v-slot:left>
-          <q-icon name="done" />
-        </template>
-
-        <q-item>
-          <q-item-section avatar>
-            <q-avatar>
-              <img src="https://cdn.quasar.dev/img/avatar2.jpg">
-            </q-avatar>
-          </q-item-section>
-          <q-item-section>Only left action</q-item-section>
-        </q-item>
-      </q-slide-item>
-
-      <q-slide-item @left="onLeft" @right="onRight">
-        <template v-slot:right>
-          <q-icon name="alarm" />
-        </template>
-
-        <q-item>
-          <q-item-section avatar>
-            <q-avatar>
-              <img src="https://cdn.quasar.dev/img/avatar3.jpg">
-            </q-avatar>
-          </q-item-section>
-          <q-item-section>Only right action</q-item-section>
-        </q-item>
-      </q-slide-item>
-
-      <q-slide-item @left="onLeft" @right="onRight">
-        <q-item>
-          <q-item-section avatar>
-            <q-avatar>
-              <img src="https://cdn.quasar.dev/img/avatar5.jpg">
-            </q-avatar>
-          </q-item-section>
-          <q-item-section>No actions</q-item-section>
-        </q-item>
-      </q-slide-item>
+      <q-item v-for="chat in openChats" v-bind:key="chat.id"  clickable v-ripple  @click="openChat(chat)">
+        <q-item-section avatar>
+          <q-avatar>
+            <img :src="chat.avatar">
+          </q-avatar>
+        </q-item-section>
+        <q-item-section>{{chat.name}}</q-item-section>
+      </q-item>
 
     </q-list>
 
@@ -52,38 +20,68 @@
   </div>
 </template>
 <script>
+import ChatService from '../../services/ChatService'
 export default {
   data () {
     return {
-      idUserOrigin: null
+      idUserOrigin: null,
+      openChats: []
     }
   },
   created () {
     const user = window.localStorage.getItem('user')
-    if (!user) {
-      this.$router.push({ path: '/login' })
-    }
     this.idUserOrigin = JSON.parse(user)
+
+    this.getChats(this.idUserOrigin._id)
   },
   methods: {
-    onSearch () {
+    openDialog () {
+
+    },
+    onSearch (user) {
+      if (user._id) {
+        this.$router.push({ path: '/chat/' + user._id })
+      } else {
+        this.$router.push({ path: '/chat' })
+      }
+    },
+    async getChats (id) {
       const vm = this
-      vm.$router.push({ path: '/chat' })
+      await ChatService.getChatsUsers(id)
+        .then(function (response) {
+          vm.openChats = response.data
+        })
     },
-    onLeft ({ reset }) {
-      this.$q.notify('Left action triggered. Resetting in 1 second.')
-      this.finalize(reset)
-    },
+    openChat (user) {
+      this.onSearch(user)
+    }
+  },
+  filters: {
+    timeSince: function (date) {
+      var seconds = Math.floor((new Date() - date) / 1000)
 
-    onRight ({ reset }) {
-      this.$q.notify('Right action triggered. Resetting in 1 second.')
-      this.finalize(reset)
-    },
+      var interval = Math.floor(seconds / 31536000)
 
-    finalize (reset) {
-      this.timer = setTimeout(() => {
-        reset()
-      }, 1000)
+      if (interval > 1) {
+        return interval + ' years'
+      }
+      interval = Math.floor(seconds / 2592000)
+      if (interval > 1) {
+        return interval + ' months'
+      }
+      interval = Math.floor(seconds / 86400)
+      if (interval > 1) {
+        return interval + ' days'
+      }
+      interval = Math.floor(seconds / 3600)
+      if (interval > 1) {
+        return interval + ' hours'
+      }
+      interval = Math.floor(seconds / 60)
+      if (interval > 1) {
+        return interval + ' minutes'
+      }
+      return Math.floor(seconds) + ' seconds'
     }
   }
 

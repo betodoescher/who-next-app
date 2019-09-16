@@ -48,6 +48,7 @@
 <script>
 import ChatService from '../../services/ChatService'
 import UserService from '../../services/UserService'
+import LocationService from '../../services/LocationService'
 import io from 'socket.io-client'
 export default {
   name: 'Chat',
@@ -55,6 +56,8 @@ export default {
     return {
       dense: true,
       text: '',
+      latitude: null,
+      longitude: null,
       user: {},
       userConnected: {},
       chatMessages: [
@@ -79,16 +82,25 @@ export default {
   },
   created () {
     const user = window.localStorage.getItem('user')
-    if (!user) {
-      this.$router.push({ path: '/login' })
-    }
     this.user = JSON.parse(user)
-
-    this.$q.loading.show()
-    this.getUsuarioProximo()
-    this.$q.loading.hide()
-
     const vm = this
+
+    if (this.$route.params.id) {
+      UserService.getUserById(this.$route.params.id).then(function (response) {
+        vm.userConnected = response.data
+        ChatService.getChats(vm.user._id /* Usuário Origem */, vm.$route.params.id /* Usuário Destino */)
+          .then(function (response) {
+            vm.openChats = response.data
+            if (response.data.length > 0) {
+              for (let key in response.data) {
+                vm.printMensage(response.data[key])
+              }
+            }
+          })
+      })
+    } else {
+      vm.getLocation()
+    }
 
     const socket = io('http://localhost:3333', {
       query: { user: vm.user._id }
@@ -99,6 +111,26 @@ export default {
     })
   },
   methods: {
+    getLocation () {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(this.showPosition)
+      } else {
+        return 'Geolocation is not supported by this browser.'
+      }
+    },
+    showPosition (position) {
+      const latitude = position.coords.latitude
+      const longitude = position.coords.longitude
+
+      const vm = this
+
+      LocationService.post({
+        _idUser: this.user._id,
+        geometry: [latitude, longitude]
+      }).then(function (response) {
+        vm.getUsuarioProximo()
+      })
+    },
     onBack () {
       this.$router.push({ path: '/chats' })
     },
@@ -121,6 +153,8 @@ export default {
     },
     printMensage (param) {
       const vm = this
+
+      console.log(param)
 
       const mensagemEnviada = {
         id: param._id,
@@ -155,7 +189,8 @@ export default {
       // Buscando usuário na "proximidade"
       await UserService.locationUser(vm.user.user)
         .then(function (response) {
-          if (!response.data) {
+          console.log(response)
+          if (response.data.length === 0) {
             vm.$q.notify({
               color: 'red-5',
               textColor: 'white',
@@ -163,8 +198,14 @@ export default {
               message: 'Usuário não encontrado, tente novamente!'
             })
 
+            vm.$router.push({ path: '/chats' })
+
             return false
           }
+
+          UserService.getUserById(response.data[0]._idUser).then(function (response) {
+            vm.userConnected = response.data
+          })
 
           // vm.$q.notify({
           //   color: 'green-4',
@@ -172,8 +213,6 @@ export default {
           //   icon: 'fas fa-check-circle',
           //   message: 'Usuário encontrado'
           // })
-
-          vm.userConnected = response.data
         })
     }
   }

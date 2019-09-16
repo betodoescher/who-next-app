@@ -52,7 +52,10 @@ module.exports = function (ctx) {
         'QList',
         'QSlideItem',
         'QAvatar',
-        'QPageSticky'
+        'QPageSticky',
+        'QDialog',
+        'QCard',
+        'QForm'
       ],
 
       directives: [
@@ -62,7 +65,8 @@ module.exports = function (ctx) {
       // Quasar plugins
       plugins: [
         'Notify',
-        'Loading'
+        'Loading',
+        'Dialog'
       ]
     },
 
